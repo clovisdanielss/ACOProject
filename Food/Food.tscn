@@ -1,0 +1,19 @@
+[gd_scene load_steps=3 format=3 uid="uid://cb71v21lnsw0n"]
+
+[ext_resource type="Texture2D" uid="uid://b34ym6c4wh6fr" path="res://Food/food-withbg-removebg-preview.png" id="1_8tl44"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_kltnv"]
+size = Vector2(15, 16)
+
+[node name="Food" type="StaticBody2D"]
+z_index = -1
+position = Vector2(69, 60)
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(-1, -1.5)
+scale = Vector2(0.10101, 0.130435)
+texture = ExtResource("1_8tl44")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(7.62939e-06, -7.62939e-06)
+shape = SubResource("RectangleShape2D_kltnv")

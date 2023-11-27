@@ -1,0 +1,17 @@
+[gd_scene load_steps=3 format=3 uid="uid://dhqwhpcd4gd7p"]
+
+[ext_resource type="Texture2D" uid="uid://ccpneg4fgm0ao" path="res://AntColony/ant-colony.png" id="1_pp261"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_hw17t"]
+size = Vector2(46, 49)
+
+[node name="AntColony" type="StaticBody2D"]
+z_index = -1
+position = Vector2(68, 70)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, 0.5)
+shape = SubResource("RectangleShape2D_hw17t")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("1_pp261")

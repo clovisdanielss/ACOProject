@@ -1,0 +1,31 @@
+[gd_scene load_steps=5 format=3 uid="uid://csvk0u7trbia2"]
+
+[ext_resource type="Script" path="res://Ant/Ant.cs" id="1_fe4dr"]
+[ext_resource type="Texture2D" uid="uid://drg8f7333p2im" path="res://Ant/ant-removebg-preview.png" id="2_0u3wa"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_fh3gt"]
+radius = 12.4329
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_h1m5b"]
+size = Vector2(14.5, 25)
+
+[node name="Ant" type="CharacterBody2D"]
+position = Vector2(119, 92)
+script = ExtResource("1_fe4dr")
+
+[node name="HeadCollider" type="CollisionShape2D" parent="."]
+position = Vector2(7, 3)
+rotation = 1.5708
+scale = Vector2(0.58, 0.58)
+shape = SubResource("CircleShape2D_fh3gt")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(-8, 3)
+rotation = 1.5708
+shape = SubResource("RectangleShape2D_h1m5b")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(3.8147e-06, 3)
+rotation = 1.5708
+scale = Vector2(0.30198, 0.364)
+texture = ExtResource("2_0u3wa")

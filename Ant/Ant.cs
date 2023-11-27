@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using System.Linq;
 
 public partial class Ant : CharacterBody2D
 {
@@ -10,8 +11,8 @@ public partial class Ant : CharacterBody2D
 	public const float MaxSpeed = 200.0f;
 	public const float Speed = 50.0f;
 	public const float SpeedAdjustment = .85f;
-	public Vector2 TargetPosition { get; set; } = new Vector2(1, 0);
-	public Vector2 TargetVector => TargetPosition - Position;
+	public Vector2? TargetPosition { get; set; } = null;
+	public Vector2? TargetVector => TargetPosition.HasValue ? TargetPosition - Position : null;
 	public Vector2 OriginalPosition { get; set; }
 	public bool ShouldReturn { get; set; }
 
@@ -21,21 +22,23 @@ public partial class Ant : CharacterBody2D
 	public Ant() : base()
 	{
 		OriginalPosition = Position;
-		TargetPosition = Position;
 	}
 
 	
 	protected virtual void _ProcessDirection()
 	{
-		LookAt(TargetPosition);
+		if(TargetPosition.HasValue)
+			LookAt(TargetPosition.Value);
 	}
 	public override void _Process(double delta)
 	{
 		_ProcessDirection();
+		_ProcessMoviment();
 		base._Process(delta);
 	}
-	public override void _PhysicsProcess(double delta)
-	{
+
+	public void _ProcessMoviment(){
+		if(!TargetVector.HasValue) return;
 		if (Velocity.Length() > MaxSpeed)
 		{
 			Velocity *= SpeedAdjustment;
@@ -43,27 +46,28 @@ public partial class Ant : CharacterBody2D
 		else
 		{
 			Vector2 velocity = Velocity;
-			velocity += TargetVector.Normalized() * Speed;
+			velocity += TargetVector.Value.Normalized() * Speed;
 			Velocity = velocity;
 			
 		}
 
-		KinematicCollision2D collision = MoveAndCollide(Velocity * (float)delta);
-		if(_CheckTargetCollision(collision))
+		MoveAndSlide();
+		if(_CheckTargetCollision())
 			ShouldReturn = !ShouldReturn;
 	}
+	public override void _PhysicsProcess(double delta)
+	{
+		base._PhysicsProcess(delta);
+	}
 
-	private bool _CheckTargetCollision(KinematicCollision2D collision){
-		if(collision == null)
-			return false;
-		else{
-			if(collision.GetCollider() is Node food && food.Name.ToString().Contains("Food")){
-				food.QueueFree();
-			}
-			else if(collision.GetCollider() is Node colony && colony.Name.ToString().Contains("AntColony")){
-				return ShouldReturn ? true : false;
-			}
-			return true;
+	private bool _CheckTargetCollision(){
+		var colony = this.GetParent()?.GetNode<Area2D>("AntColony");
+		if(colony != null && colony.OverlapsBody(this)){
+			return ShouldReturn ? true : false;
 		}
+		var foods = this.GetParent()?.GetChildren().Where(n => n.Name.ToString().Contains("Food"));
+		var foodCollided = foods.FirstOrDefault(food => (food as Area2D).OverlapsBody(this));
+		foodCollided?.QueueFree();
+		return foodCollided != null;
 	}
 }

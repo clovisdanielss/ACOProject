@@ -5,6 +5,7 @@ public partial class DroppingPheromones : Node2D
 {
 	public override void _Ready()
 	{
+		_InitializePheromone();
 	}
 
 	public override void _Input(InputEvent @event)
@@ -14,7 +15,7 @@ public partial class DroppingPheromones : Node2D
 			if (mouseEvent.Pressed)
 			{
 				// Handle mouse button press
-				_ManualDropPheromone();
+				_DropPheromone(GetViewport().GetMousePosition());
 			}
 		}
 		if (@event is InputEventKey key)
@@ -25,7 +26,7 @@ public partial class DroppingPheromones : Node2D
 				var node = GetNode<CharacterBody2D>("AntAgent");
 				if (node is AntAgent ant)
 				{
-					ant.IsStoped = !ant.IsStoped;
+					ant.TargetPosition = ant.Position;
 				}
 			}
 		}
@@ -34,16 +35,15 @@ public partial class DroppingPheromones : Node2D
 	public override void _Process(double delta)
 	{
 		var node = GetNode<CharacterBody2D>("AntAgent");
-		var food = GetNode<StaticBody2D>("Food");
 		if (node is AntAgent ant)
 		{
-			ant.OriginalPosition = this.GetNode<StaticBody2D>("AntColony").Position;
+			ant.OriginalPosition = this.GetNode<Area2D>("AntColony").Position;
 		}
-		if (food == null)
+		if (!GetTree().Root.GetChild(0).HasNode("Food"))
 		{
 			var foodScene = (PackedScene)GD.Load("res://Food/Food.tscn");
 			var foodNode = foodScene.Instantiate();
-			if (foodNode is StaticBody2D foodStatic)
+			if (foodNode is Area2D foodStatic)
 			{
 				foodStatic.Position = GetRandomScreenPosition();
 			}
@@ -63,14 +63,24 @@ public partial class DroppingPheromones : Node2D
 		return new Vector2(x, y);
 	}
 
-	private void _ManualDropPheromone()
+	private void _DropPheromone(Vector2 position, double val = 1.0, double dur = 30000)
 	{
 		var parent = (Node)this;
 		var pherormoneScene = (PackedScene)GD.Load("res://Pheromone/Pheromone.tscn");
 		var pheromone = (Pheromone)pherormoneScene.Instantiate();
-		pheromone.Value = 1;
+		pheromone.RenewDuration(dur);
+		pheromone.Update(val);
 		pheromone.Name = $"Pheromone {Guid.NewGuid()}";
-		pheromone.Position = GetViewport().GetMousePosition();
+		pheromone.Position = position;
 		parent.AddChild(pheromone);
+	}
+
+	private void _InitializePheromone(){
+		var viewportSize = GetViewport().GetWindow().Size;
+		for(float i = 0; i < viewportSize.X + 50; i+=50){
+			for(float j = 0; j < viewportSize.Y + 50; j+=50){
+				_DropPheromone(new(i,j), Random.Shared.NextDouble(), 400000);
+			}
+		}
 	}
 }

@@ -1,0 +1,17 @@
+[gd_scene load_steps=5 format=3 uid="uid://ddde2tbh7b1rk"]
+
+[ext_resource type="Script" path="res://Stage_PickAndReturn/PickAndReturn.cs" id="1_dsjyg"]
+[ext_resource type="PackedScene" uid="uid://cb71v21lnsw0n" path="res://Food/Food.tscn" id="2_bfto1"]
+[ext_resource type="PackedScene" uid="uid://dhqwhpcd4gd7p" path="res://AntColony/AntColony.tscn" id="3_phweh"]
+[ext_resource type="PackedScene" uid="uid://csvk0u7trbia2" path="res://Ant/Ant.tscn" id="4_20p2r"]
+
+[node name="Scene1" type="Node2D"]
+script = ExtResource("1_dsjyg")
+
+[node name="Food" parent="." instance=ExtResource("2_bfto1")]
+position = Vector2(351, 223)
+
+[node name="AntColony" parent="." instance=ExtResource("3_phweh")]
+position = Vector2(76, 79)
+
+[node name="Ant" parent="." instance=ExtResource("4_20p2r")]

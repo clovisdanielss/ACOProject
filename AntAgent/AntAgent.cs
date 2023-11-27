@@ -75,14 +75,13 @@ public class Vertex
 
 public partial class AntAgent : Ant
 {
-	public bool IsStoped { get; set; }
-	private double PheromoneImportance = 5;
-	private double QualityImportance = 1;
+	private double PheromoneImportance = 2;
+	private double QualityImportance = 2;
 	private const double AdjacentDistance = 100;
 	private double AdjacentRatio => 3 * AdjacentDistance / 6;
 	private double SelfVertexRatio => AdjacentDistance / 6;
 	private List<Vertex> VisitedVertices { get; set; }
-	public int CycleCounter { get; set; }
+	protected bool PreviousState { get; set; }
 	public AntAgent() : base()
 	{
 		VisitedVertices = new List<Vertex>();
@@ -92,25 +91,27 @@ public partial class AntAgent : Ant
 	{
 		return new Vertex(Position, SelfVertexRatio);
 	}
+
 	public override void _Process(double delta)
 	{
+		PreviousState = ShouldReturn;
+		_ProcessTarget();
 		base._Process(delta);
-		var v = _GetSelfVertex();
-		if (v.IntersectWith(TargetPosition) && !IsStoped)
+		if (HasSolution())
 		{
-			_GoToNextPosition();
+			_DropPheromones(delta);
 		}
 	}
 
-	public override void _PhysicsProcess(double delta)
+	private void _ProcessTarget()
 	{
-		var currentObjective = ShouldReturn;
-		base._PhysicsProcess(delta);
-		var objectiveChanged = currentObjective != ShouldReturn;
-		if (objectiveChanged && !ShouldReturn)
+		if (TargetPosition.HasValue)
 		{
-			CycleCounter++;
-			_DropPheromone(delta);
+			var v = _GetSelfVertex();
+			if (v.IntersectWith(TargetPosition.Value))
+			{
+				_DefineNextTargetPosition();
+			}
 		}
 	}
 
@@ -142,7 +143,8 @@ public partial class AntAgent : Ant
 			new(Position + OrientationOffset.NorthWest(AdjacentDistance), AdjacentRatio)
 		};
 		//Filter adjacets to remove the ones which scape the screen
-		adjacents = adjacents.Where(v => !v.IsOffscreen(GetViewportRect().Size.X, GetViewportRect().Size.Y)).ToList();
+		adjacents = adjacents.Where(v => !v.IsOffscreen(GetViewportRect().Size.X, GetViewportRect().Size.Y))
+							 .Where(v => !v.IntersectWith(OriginalPosition)).ToList();
 		//The ant should have a default ratio.
 		adjacents.ForEach(v =>
 		{
@@ -150,7 +152,7 @@ public partial class AntAgent : Ant
 			//TODO: Fix the formula to compute pheromone.
 			v.Pheromone = pheromones.Where(ph => v.IntersectWith((ph as Pheromone).Position)).Sum(ph => (ph as Pheromone).Value);
 			//Compute the quality of each vertex (N, NE, ... NW)
-			v.Quality = 1 / OriginalPosition.DistanceTo(v.Position);
+			v.Quality = 1.0 / OriginalPosition.DistanceTo(v.Position);
 		});
 		GD.Print(string.Join("\n", adjacents));
 		return adjacents;
@@ -159,12 +161,12 @@ public partial class AntAgent : Ant
 	/// <summary>
 	/// Defines the next target position.
 	/// </summary>
-	private void _GoToNextPosition()
+	private void _DefineNextTargetPosition()
 	{
 		//Create adjacents vertices;
 		var adjacents = _CreateAdjacents();
 		//Compute the probability of moving. (If there is no pherormone every vertex has the sabe prob.)
-		var probs = adjacents.Select((adj, i) => new { prob = _ProbabilityOfMoving(adj, adjacents), index = i}).OrderBy(p => p.prob);
+		var probs = adjacents.Select((adj, i) => new { prob = _ProbabilityOfMoving(adj, adjacents), index = i }).OrderBy(p => p.prob);
 		GD.Print("Probs, ", string.Join(".", probs));
 		//Choose a vertex to set as TargetPosition.
 		var randomNumber = Random.Shared.NextDouble();
@@ -175,7 +177,7 @@ public partial class AntAgent : Ant
 			sumOfProbs += item.prob;
 			if (sumOfProbs >= randomNumber)
 			{
-				GD.Print("Choosed: " ,item);
+				GD.Print("Choosed: ", item);
 				selectedIndex = item.index;
 				break;
 			}
@@ -210,13 +212,18 @@ public partial class AntAgent : Ant
 	/// <returns>True if the solution is valid</returns>
 	protected virtual bool HasSolution()
 	{
-		return true;
+		var objectiveChanged = PreviousState != ShouldReturn;
+		return objectiveChanged && ShouldReturn;
 	}
-	private void _DropPheromone(double delta)
+	private void _DropPheromones(double delta)
 	{
-		//Consider to create the pheromone after the ant find a cycle. 
-		//This way you can use the visited vertices to form a solution path and
-		//compute the pheromone correctly. 
+		//Copy the solution and erase from the ant. 
+		// var solution = VisitedVertices;
+		// VisitedVertices = new List<Vertex>();
+		// //Compute solution cost
+		// var cost = 0;
+		// solution = 
+		//Create pherormones at each position of solution
 
 
 		// if (!ShouldReturn) return;
@@ -230,6 +237,18 @@ public partial class AntAgent : Ant
 		// 	pheromone.Position = Position;
 		// 	parent.AddChild(pheromone);
 		// }
+	}
+
+	private void _DropPheromone(Vector2 position, double ph, double dur)
+	{
+		var parent = (Node)this.GetParent();
+		var pherormoneScene = (PackedScene)GD.Load("res://Pheromone/Pheromone.tscn");
+		var pheromone = (Pheromone)pherormoneScene.Instantiate();
+		pheromone.RenewDuration(dur);
+		pheromone.Update(ph);
+		pheromone.Name = $"Pheromone {Guid.NewGuid()}";
+		pheromone.Position = position;
+		parent.AddChild(pheromone);
 	}
 
 }

@@ -12,10 +12,9 @@ public partial class PickAndReturn : Node2D
 	public override void _Process(double delta)
 	{
 		var node = GetNode<CharacterBody2D>("Ant");
-		var food = GetNode<StaticBody2D>("Food");
 		if (node is Ant ant)
 		{
-			ant.OriginalPosition = this.GetNode<StaticBody2D>("AntColony").Position;
+			ant.OriginalPosition = this.GetNode<Area2D>("AntColony").Position;
 			if (ant.ShouldReturn)
 			{
 				ant.TargetPosition = ant.OriginalPosition;
@@ -25,11 +24,12 @@ public partial class PickAndReturn : Node2D
 				ant.TargetPosition = GetViewport().GetMousePosition();
 			}
 		}
-		if (food == null)
+
+		if (!GetTree().Root.GetChild(0).HasNode("Food"))
 		{
 			var foodScene = (PackedScene)GD.Load("res://Food/Food.tscn");
 			var foodNode = foodScene.Instantiate();
-			if (foodNode is StaticBody2D foodStatic)
+			if (foodNode is Area2D foodStatic)
 			{
 				foodStatic.Position = GetRandomScreenPosition();
 			}

@@ -2,12 +2,13 @@
 
 [ext_resource type="Texture2D" uid="uid://b34ym6c4wh6fr" path="res://Food/food-withbg-removebg-preview.png" id="1_8tl44"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_kltnv"]
-size = Vector2(15, 16)
+[sub_resource type="CircleShape2D" id="CircleShape2D_c6tfy"]
 
 [node name="Food" type="Area2D"]
 z_index = -1
 position = Vector2(69, 60)
+collision_layer = 2
+collision_mask = 3
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 position = Vector2(-1, -1.5)
@@ -16,4 +17,4 @@ texture = ExtResource("1_8tl44")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(7.62939e-06, -7.62939e-06)
-shape = SubResource("RectangleShape2D_kltnv")
+shape = SubResource("CircleShape2D_c6tfy")

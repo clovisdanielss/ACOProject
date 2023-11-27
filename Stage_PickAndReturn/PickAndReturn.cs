@@ -14,10 +14,10 @@ public partial class PickAndReturn : Node2D
 		var node = GetNode<CharacterBody2D>("Ant");
 		if (node is Ant ant)
 		{
-			ant.OriginalPosition = this.GetNode<Area2D>("AntColony").Position;
-			if (ant.ShouldReturn)
+			ant.ColonyPosition = this.GetNode<Area2D>("AntColony").Position;
+			if (ant.HasFood)
 			{
-				ant.TargetPosition = ant.OriginalPosition;
+				ant.TargetPosition = ant.ColonyPosition;
 			}
 			else
 			{

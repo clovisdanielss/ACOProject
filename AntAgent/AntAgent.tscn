@@ -11,6 +11,7 @@ size = Vector2(14.5, 25)
 
 [node name="AntAgent" type="CharacterBody2D"]
 position = Vector2(119, 92)
+collision_mask = 2
 script = ExtResource("1_xasg4")
 
 [node name="HeadCollider" type="CollisionShape2D" parent="."]

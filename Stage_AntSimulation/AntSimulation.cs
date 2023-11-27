@@ -1,7 +1,7 @@
 using Godot;
 using System;
 
-public partial class DroppingPheromones : Node2D
+public partial class AntSimulation : Node2D
 {
 	public override void _Ready()
 	{
@@ -15,7 +15,7 @@ public partial class DroppingPheromones : Node2D
 			if (mouseEvent.Pressed)
 			{
 				// Handle mouse button press
-				_DropPheromone(GetViewport().GetMousePosition());
+				_CreateAntAgent();
 			}
 		}
 		if (@event is InputEventKey key)
@@ -34,21 +34,7 @@ public partial class DroppingPheromones : Node2D
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
-		var node = GetNode<CharacterBody2D>("AntAgent");
-		if (node is AntAgent ant)
-		{
-			ant.ColonyPosition = this.GetNode<Area2D>("AntColony").Position;
-		}
-		if (!GetTree().Root.GetChild(0).HasNode("Food"))
-		{
-			var foodScene = (PackedScene)GD.Load("res://Food/Food.tscn");
-			var foodNode = foodScene.Instantiate();
-			if (foodNode is Area2D foodStatic)
-			{
-				foodStatic.Position = GetRandomScreenPosition();
-			}
-			this.AddChild(foodNode);
-		}
+
 	}
 
 	public Vector2 GetRandomScreenPosition()
@@ -75,11 +61,26 @@ public partial class DroppingPheromones : Node2D
 		parent.AddChild(pheromone);
 	}
 
-	private void _InitializePheromone(){
+	private void _CreateAntAgent()
+	{
+		var parent = (Node)this;
+		var agentScene = (PackedScene)GD.Load("res://AntAgent/AntAgent.tscn");
+		var antAgent = (AntAgent)agentScene.Instantiate();
+		antAgent.Position = this.GetNode<Area2D>("AntColony").Position;
+		antAgent.ColonyPosition = antAgent.Position;
+		antAgent.TargetPosition = antAgent.Position;
+		parent.AddChild(antAgent);
+	}
+
+	private void _InitializePheromone()
+	{
+		var offset = 100;
 		var viewportSize = GetViewport().GetWindow().Size;
-		for(float i = 0; i < viewportSize.X + 50; i+=50){
-			for(float j = 0; j < viewportSize.Y + 50; j+=50){
-				_DropPheromone(new(i,j), Random.Shared.NextDouble()/100, 400000);
+		for (float i = 0; i < viewportSize.X + offset; i += offset)
+		{
+			for (float j = 0; j < viewportSize.Y + offset; j += offset)
+			{
+				_DropPheromone(new(i, j), Random.Shared.NextDouble() / 100, 400000);
 			}
 		}
 	}

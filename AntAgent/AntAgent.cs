@@ -77,9 +77,9 @@ public partial class AntAgent : Ant
 {
 	private double PheromoneImportance = 2;
 	private double QualityImportance = 2;
-	private const double AdjacentDistance = 100;
-	private double AdjacentRatio => 3 * AdjacentDistance / 6;
-	private double SelfVertexRatio => AdjacentDistance / 6;
+	private const double AdjacentDistance = 150;
+	private double AdjacentRatio => AdjacentDistance/2;
+	private double SelfVertexRatio => 2*AdjacentRatio/5;
 	private List<Vertex> VisitedVertices { get; set; }
 	protected bool PreviousState { get; set; }
 	public AntAgent() : base()
@@ -94,7 +94,7 @@ public partial class AntAgent : Ant
 
 	public override void _Process(double delta)
 	{
-		PreviousState = ShouldReturn;
+		PreviousState = HasFood;
 		_ProcessTarget();
 		base._Process(delta);
 		if (HasSolution())
@@ -144,18 +144,29 @@ public partial class AntAgent : Ant
 		};
 		//Filter adjacets to remove the ones which scape the screen
 		adjacents = adjacents.Where(v => !v.IsOffscreen(GetViewportRect().Size.X, GetViewportRect().Size.Y))
-							 .Where(v => !v.IntersectWith(OriginalPosition)).ToList();
+							 .Where(v => !v.IntersectWith(ColonyPosition)).ToList();
 		//The ant should have a default ratio.
 		adjacents.ForEach(v =>
 		{
 			//Compute the pheromone for each vertex (N, NE ... NW)
-			//TODO: Fix the formula to compute pheromone.
 			v.Pheromone = pheromones.Where(ph => v.IntersectWith((ph as Pheromone).Position)).Sum(ph => (ph as Pheromone).Value);
 			//Compute the quality of each vertex (N, NE, ... NW)
-			v.Quality = 1.0 / OriginalPosition.DistanceTo(v.Position);
+			v.Quality = _Heuristic(v);
 		});
-		GD.Print(string.Join("\n", adjacents));
 		return adjacents;
+	}
+
+	protected virtual double _Heuristic(Vertex v)
+	{
+		if(HasFood){
+			return 1.0 / ColonyPosition.DistanceSquaredTo(v.Position);
+		}
+		if(!HasFood){
+			if(FoodPosition.HasValue){
+				return 1.0 / FoodPosition.Value.DistanceSquaredTo(v.Position);
+			}
+		}
+		return 1.0;
 	}
 
 	/// <summary>
@@ -167,7 +178,7 @@ public partial class AntAgent : Ant
 		var adjacents = _CreateAdjacents();
 		//Compute the probability of moving. (If there is no pherormone every vertex has the sabe prob.)
 		var probs = adjacents.Select((adj, i) => new { prob = _ProbabilityOfMoving(adj, adjacents), index = i }).OrderBy(p => p.prob);
-		GD.Print("Probs, ", string.Join(".", probs));
+		
 		//Choose a vertex to set as TargetPosition.
 		var randomNumber = Random.Shared.NextDouble();
 		var selectedIndex = -1;
@@ -177,12 +188,12 @@ public partial class AntAgent : Ant
 			sumOfProbs += item.prob;
 			if (sumOfProbs >= randomNumber)
 			{
-				GD.Print("Choosed: ", item);
+				
 				selectedIndex = item.index;
 				break;
 			}
 		}
-		GD.Print($"Prob result: {selectedIndex} => {randomNumber} | {sumOfProbs}");
+		
 		if (sumOfProbs == 0 || selectedIndex == -1)
 		{
 			selectedIndex = Random.Shared.Next(0, adjacents.Count());
@@ -212,31 +223,27 @@ public partial class AntAgent : Ant
 	/// <returns>True if the solution is valid</returns>
 	protected virtual bool HasSolution()
 	{
-		var objectiveChanged = PreviousState != ShouldReturn;
-		return objectiveChanged && ShouldReturn;
+		var objectiveChanged = PreviousState != HasFood;
+		return objectiveChanged;
 	}
 	private void _DropPheromones(double delta)
 	{
-		//Copy the solution and erase from the ant. 
-		// var solution = VisitedVertices;
-		// VisitedVertices = new List<Vertex>();
-		// //Compute solution cost
-		// var cost = 0;
-		// solution = 
+		//Copy the solution. 
+		var solution = VisitedVertices;
+		//Compute solution cost
+		var cost = 0.0;
+		var path = solution.Zip(solution.Skip(1), (first, second) => new {u = first, v = second});
+		foreach(var edge in path){
+			cost += edge.u.Position.DistanceTo(edge.v.Position);
+		}
 		//Create pherormones at each position of solution
+		solution.ForEach(v => _DropPheromone(v.Position, 1.0/Math.Sqrt(cost), 120000));
+		_DropPheromone(ColonyPosition, 1.0/Math.Sqrt(cost), 120000);
+		if(FoodPosition.HasValue)
+			_DropPheromone(FoodPosition.Value, 1.0/Math.Sqrt(cost), 120000);
 
-
-		// if (!ShouldReturn) return;
-		// NextPherormoneDelay -= delta * Second;
-		// if (NextPherormoneDelay <= 0)
-		// {
-		// 	NextPherormoneDelay = PheromoneDelay;
-		// 	var parent = (Node)this.GetParent();
-		// 	var pherormoneScene = (PackedScene)GD.Load("res://Pheromone/Pheromone.tscn");
-		// 	var pheromone = (Area2D)pherormoneScene.Instantiate();
-		// 	pheromone.Position = Position;
-		// 	parent.AddChild(pheromone);
-		// }
+		//Reset visited vertices.
+		VisitedVertices = new List<Vertex>();
 	}
 
 	private void _DropPheromone(Vector2 position, double ph, double dur)

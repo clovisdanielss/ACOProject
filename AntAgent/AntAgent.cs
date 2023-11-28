@@ -5,8 +5,8 @@ using System.Linq;
 
 public partial class AntAgent : Ant
 {
-	private double PheromoneImportance = 2;
-	private double QualityImportance = 2;
+	public double PheromoneImportance = 1;
+	public double QualityImportance = 1;
 	private const double AdjacentDistance = 75;
 	private double AdjacentRatio => AdjacentDistance / 2;
 	private double SelfVertexRatio => 2 * AdjacentRatio / 5;
@@ -29,20 +29,10 @@ public partial class AntAgent : Ant
 		base._Process(delta);
 		if (HasSolution())
 		{
-			if(!HasFood) _EditFoodCounter();
+			if(!HasFood) this.EditText("FCounter", v=>++v);
 			QueueRedraw();
 			_DropPheromones(delta);
 		}
-	}
-
-	public virtual void _EditFoodCounter(){
-		if(!GetTree().Root.GetChild(0).HasNode("FCounter")) return;
-		var textEditor = GetParent().GetNode<TextEdit>("FCounter");
-		var texts = textEditor.Text.Split(" ");
-		if(int.TryParse(texts[^1], out int val)){
-			texts[^1] = (val+1).ToString();
-		}
-		textEditor.Text = string.Join(" ", texts);
 	}
 
 	private void _ProcessTarget()

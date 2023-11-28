@@ -12,14 +12,6 @@ public partial class AntSimulation : Node2D
 
 	public override void _Input(InputEvent @event)
 	{
-		if (@event is InputEventMouseButton mouseEvent)
-		{
-			if (mouseEvent.Pressed)
-			{
-				// Handle mouse button press
-				_CreateAntAgent();
-			}
-		}
 		if (@event is InputEventKey key)
 		{
 			if (key.Pressed)
@@ -61,16 +53,7 @@ public partial class AntSimulation : Node2D
 		parent.AddChild(pheromone);
 	}
 
-	private void _CreateAntAgent()
-	{
-		var parent = (Node)this;
-		var agentScene = (PackedScene)GD.Load("res://AntAgent/AntAgent.tscn");
-		var antAgent = (AntAgent)agentScene.Instantiate();
-		antAgent.Position = this.GetNode<Area2D>("AntColony").Position;
-		antAgent.ColonyPosition = antAgent.Position;
-		antAgent.TargetPosition = antAgent.Position;
-		parent.AddChild(antAgent);
-	}
+	
 
 	private void _InitializePheromone()
 	{

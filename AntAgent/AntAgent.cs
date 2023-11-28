@@ -27,7 +27,7 @@ public partial class AntAgent : Ant
 		PreviousState = HasFood;
 		_ProcessTarget();
 		base._Process(delta);
-		if (HasSolution())
+		if (_HasSolution())
 		{
 			if(!HasFood) this.EditText("FCounter", v=>++v);
 			QueueRedraw();
@@ -57,7 +57,7 @@ public partial class AntAgent : Ant
 	/// N, NE, E, SE, S, SW, W, NW.
 	/// </summary>
 	/// <returns>A list of adjacents</returns>
-	private List<Vertex> _CreateAdjacents()
+	protected virtual List<Vertex> _CreateAdjacents()
 	{
 		//Get all pheromone from map. 
 		var parent = this.GetParent();
@@ -82,7 +82,7 @@ public partial class AntAgent : Ant
 		{
 			//Compute the pheromone for each vertex (N, NE ... NW)
 			var phs = pheromones.Where(ph => v.IntersectWith((ph as Pheromone).Position)).Select(p => p as Pheromone).ToList();
-			v.Edges = phs;
+			v.PheromoneCluster = phs;
 
 			//Compute the quality of each vertex (N, NE, ... NW)
 			v.Quality = _Heuristic(v);
@@ -136,7 +136,6 @@ public partial class AntAgent : Ant
 		{
 			selectedIndex = Random.Shared.Next(0, adjacents.Count());
 		}
-		GD.Print($"SI: {selectedIndex}, AdCt: {adjacents.Count}");
 		TargetPosition = adjacents[selectedIndex].Position;
 		//Put the choosed vertex in the VisitedVertices list.
 		VisitedVertices.Add(adjacents[selectedIndex]);
@@ -152,15 +151,6 @@ public partial class AntAgent : Ant
 			B = HasFood ? 0 : 1,
 			A = .5f,
 		});
-		// var adjacents = _CreateAdjacents();
-		// foreach(var adj in adjacents)
-		// 	DrawCircle(ToLocal(adj.Position), (float)AdjacentRatio, new Color
-		// 	{
-		// 		R = 0,
-		// 		G = 1,
-		// 		B = 0,
-		// 		A = .5f,
-		// 	});
 		base._Draw();
 	}
 
@@ -182,7 +172,7 @@ public partial class AntAgent : Ant
 	/// Verifies if the VisitedVertices consist in a solution for the current problem. 
 	/// </summary>
 	/// <returns>True if the solution is valid</returns>
-	protected virtual bool HasSolution()
+	protected virtual bool _HasSolution()
 	{
 		var objectiveChanged = PreviousState != HasFood;
 		return objectiveChanged;
@@ -200,7 +190,7 @@ public partial class AntAgent : Ant
 		}
 		//Create pherormones at each position of solution
 		solution.ForEach(v =>
-			v.Edges.ForEach(pheromone =>
+			v.PheromoneCluster.ForEach(pheromone =>
 			{
 				_DropPheromone(pheromone, 1.0 / cost);
 			})

@@ -3,33 +3,33 @@ using System;
 
 public partial class Pheromone : Area2D
 {
-	private double InitialValue {get;set;}
 	public double Value { get; set; }
-	private const double Second = 1000;
-	private double InitialDuration {get;set;}
-	private double Duration { get; set; }
+	private double EvaporationRate = .5;
 	public Pheromone()
 	{
-		InitialDuration = 30000;
-		Duration = InitialDuration;
-		InitialValue = 1;
-		Value = InitialValue;
 	}
-
+	public override void _Draw()
+	{
+		DrawCircle(ToLocal(Position), 75, new Color(){
+			R = 1,
+			G = 0,
+			B = 0,
+			A = (float)Value*100,
+		});
+		base._Draw();
+	}
+	public override void _Ready()
+	{
+		base._Ready();
+	}
 	public void Update(double ph){
-		Value = ph;
-		InitialValue = ph;
-		Duration = InitialDuration;
-	}
-	public void RenewDuration(double duration){
-		InitialDuration = duration;
-		Duration = duration;
+		var degeneratedValue = (1 - EvaporationRate) * Value;
+		Value = ph * EvaporationRate + degeneratedValue;
+		QueueRedraw();
 	}
 	public override void _Process(double delta)
 	{
-		Duration -= delta * Second;
-		Value = InitialValue * Duration/InitialDuration;
-		if(Duration < 0){
+		if(Value <= 0){
 			this.QueueFree();
 		}
 		base._Process(delta);

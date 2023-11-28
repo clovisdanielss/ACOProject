@@ -13,10 +13,3 @@ scale = Vector2(4, 4)
 
 [node name="AntColony" parent="." instance=ExtResource("2_yihlm")]
 position = Vector2(933, 500)
-
-[node name="FCounter" type="TextEdit" parent="."]
-offset_left = 4.0
-offset_top = 606.0
-offset_right = 259.0
-offset_bottom = 643.0
-text = "Contagem: 0"

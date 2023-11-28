@@ -1,8 +1,10 @@
 using Godot;
 using System;
+using System.Linq;
 
 public partial class AntSimulation : Node2D
 {
+	private double Delay = 10000;
 	public override void _Ready()
 	{
 		_InitializePheromone();
@@ -34,7 +36,6 @@ public partial class AntSimulation : Node2D
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
-
 	}
 
 	public Vector2 GetRandomScreenPosition()
@@ -49,12 +50,11 @@ public partial class AntSimulation : Node2D
 		return new Vector2(x, y);
 	}
 
-	private void _DropPheromone(Vector2 position, double val = 1.0, double dur = 30000)
+	private void _DropPheromone(Vector2 position, double val = 1.0)
 	{
 		var parent = (Node)this;
 		var pherormoneScene = (PackedScene)GD.Load("res://Pheromone/Pheromone.tscn");
 		var pheromone = (Pheromone)pherormoneScene.Instantiate();
-		pheromone.RenewDuration(dur);
 		pheromone.Update(val);
 		pheromone.Name = $"Pheromone {Guid.NewGuid()}";
 		pheromone.Position = position;
@@ -74,13 +74,13 @@ public partial class AntSimulation : Node2D
 
 	private void _InitializePheromone()
 	{
-		var offset = 100;
+		var offset = 50;
 		var viewportSize = GetViewport().GetWindow().Size;
 		for (float i = 0; i < viewportSize.X + offset; i += offset)
 		{
 			for (float j = 0; j < viewportSize.Y + offset; j += offset)
 			{
-				_DropPheromone(new(i, j), Random.Shared.NextDouble() / 100, 400000);
+				_DropPheromone(new(i, j), Random.Shared.NextDouble() / 100);
 			}
 		}
 	}

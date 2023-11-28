@@ -3,83 +3,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-public static class OrientationOffset
-{
-	public static Vector2 North(double dist)
-	{
-		return new Vector2(0, (float)-dist);
-	}
-	public static Vector2 NorthEast(double dist)
-	{
-		return new Vector2((float)dist, (float)-dist);
-	}
-	public static Vector2 East(double dist)
-	{
-		return new Vector2((float)dist, 0);
-	}
-	public static Vector2 SouthEast(double dist)
-	{
-		return new Vector2((float)dist, (float)dist);
-	}
-	public static Vector2 South(double dist)
-	{
-		return new Vector2(0, (float)dist);
-	}
-	public static Vector2 SouthWest(double dist)
-	{
-		return new Vector2((float)-dist, (float)dist);
-	}
-	public static Vector2 West(double dist)
-	{
-		return new Vector2((float)-dist, 0);
-	}
-	public static Vector2 NorthWest(double dist)
-	{
-		return new Vector2((float)-dist, (float)-dist);
-	}
-}
-
-public class Vertex
-{
-	public Vector2 Position { get; set; }
-	public double Radius { get; set; }
-	public double Pheromone { get; set; }
-	public double Quality { get; set; }
-
-	public Vertex(Vector2 pos, double r)
-	{
-		Position = pos;
-		Radius = r;
-	}
-
-	public bool IntersectWith(Vertex v)
-	{
-		return Math.Pow(v.Position.X - Position.X, 2) + Math.Pow(v.Position.Y - Position.Y, 2) < Math.Pow(Radius, 2);
-	}
-
-	public bool IntersectWith(Vector2 v)
-	{
-		return Math.Pow(v.X - Position.X, 2) + Math.Pow(v.Y - Position.Y, 2) < Math.Pow(Radius, 2);
-	}
-
-	public bool IsOffscreen(float width, float height)
-	{
-		return Position.X < 0 || Position.X > width || Position.Y > height || Position.Y < 0;
-	}
-
-	public override string ToString()
-	{
-		return $"{Position} Q:{Quality} Ph:{Pheromone}";
-	}
-}
-
 public partial class AntAgent : Ant
 {
 	private double PheromoneImportance = 2;
 	private double QualityImportance = 2;
-	private const double AdjacentDistance = 150;
-	private double AdjacentRatio => AdjacentDistance/2;
-	private double SelfVertexRatio => 2*AdjacentRatio/5;
+	private const double AdjacentDistance = 75;
+	private double AdjacentRatio => AdjacentDistance / 2;
+	private double SelfVertexRatio => 2 * AdjacentRatio / 5;
 	private List<Vertex> VisitedVertices { get; set; }
 	protected bool PreviousState { get; set; }
 	public AntAgent() : base()
@@ -99,8 +29,20 @@ public partial class AntAgent : Ant
 		base._Process(delta);
 		if (HasSolution())
 		{
+			if(!HasFood) _EditFoodCounter();
+			QueueRedraw();
 			_DropPheromones(delta);
 		}
+	}
+
+	public virtual void _EditFoodCounter(){
+		if(!GetTree().Root.GetChild(0).HasNode("FCounter")) return;
+		var textEditor = GetParent().GetNode<TextEdit>("FCounter");
+		var texts = textEditor.Text.Split(" ");
+		if(int.TryParse(texts[^1], out int val)){
+			texts[^1] = (val+1).ToString();
+		}
+		textEditor.Text = string.Join(" ", texts);
 	}
 
 	private void _ProcessTarget()
@@ -149,21 +91,28 @@ public partial class AntAgent : Ant
 		adjacents.ForEach(v =>
 		{
 			//Compute the pheromone for each vertex (N, NE ... NW)
-			v.Pheromone = pheromones.Where(ph => v.IntersectWith((ph as Pheromone).Position)).Sum(ph => (ph as Pheromone).Value);
+			var phs = pheromones.Where(ph => v.IntersectWith((ph as Pheromone).Position)).Select(p => p as Pheromone).ToList();
+			v.Edges = phs;
+
 			//Compute the quality of each vertex (N, NE, ... NW)
 			v.Quality = _Heuristic(v);
 		});
+
+		adjacents = adjacents.Where(v => v.Edges.Count > 0).ToList();
 		return adjacents;
 	}
 
 	protected virtual double _Heuristic(Vertex v)
 	{
-		if(HasFood){
-			return 1.0 / ColonyPosition.DistanceSquaredTo(v.Position);
+		if (HasFood)
+		{
+			return 1.0 / ColonyPosition.DistanceTo(v.Position);
 		}
-		if(!HasFood){
-			if(FoodPosition.HasValue){
-				return 1.0 / FoodPosition.Value.DistanceSquaredTo(v.Position);
+		if (!HasFood)
+		{
+			if (FoodPosition.HasValue)
+			{
+				return 1.0 / FoodPosition.Value.DistanceTo(v.Position);
 			}
 		}
 		return 1.0;
@@ -178,7 +127,7 @@ public partial class AntAgent : Ant
 		var adjacents = _CreateAdjacents();
 		//Compute the probability of moving. (If there is no pherormone every vertex has the sabe prob.)
 		var probs = adjacents.Select((adj, i) => new { prob = _ProbabilityOfMoving(adj, adjacents), index = i }).OrderBy(p => p.prob);
-		
+
 		//Choose a vertex to set as TargetPosition.
 		var randomNumber = Random.Shared.NextDouble();
 		var selectedIndex = -1;
@@ -188,12 +137,12 @@ public partial class AntAgent : Ant
 			sumOfProbs += item.prob;
 			if (sumOfProbs >= randomNumber)
 			{
-				
+
 				selectedIndex = item.index;
 				break;
 			}
 		}
-		
+
 		if (sumOfProbs == 0 || selectedIndex == -1)
 		{
 			selectedIndex = Random.Shared.Next(0, adjacents.Count());
@@ -201,6 +150,28 @@ public partial class AntAgent : Ant
 		TargetPosition = adjacents[selectedIndex].Position;
 		//Put the choosed vertex in the VisitedVertices list.
 		VisitedVertices.Add(adjacents[selectedIndex]);
+	}
+
+
+	public override void _Draw()
+	{
+		DrawCircle(ToLocal(Position), (float)SelfVertexRatio, new Color
+		{
+			R = 0,
+			G = HasFood ? 1 : 0,
+			B = HasFood ? 0 : 1,
+			A = .5f,
+		});
+		// var adjacents = _CreateAdjacents();
+		// foreach(var adj in adjacents)
+		// 	DrawCircle(ToLocal(adj.Position), (float)AdjacentRatio, new Color
+		// 	{
+		// 		R = 0,
+		// 		G = 1,
+		// 		B = 0,
+		// 		A = .5f,
+		// 	});
+		base._Draw();
 	}
 
 	private double _ProbabilityOfMoving(Vertex currentAdjacent, List<Vertex> adjacents)
@@ -232,30 +203,26 @@ public partial class AntAgent : Ant
 		var solution = VisitedVertices;
 		//Compute solution cost
 		var cost = 0.0;
-		var path = solution.Zip(solution.Skip(1), (first, second) => new {u = first, v = second});
-		foreach(var edge in path){
+		var path = solution.Zip(solution.Skip(1), (first, second) => new { u = first, v = second });
+		foreach (var edge in path)
+		{
 			cost += edge.u.Position.DistanceTo(edge.v.Position);
 		}
 		//Create pherormones at each position of solution
-		solution.ForEach(v => _DropPheromone(v.Position, 1.0/Math.Sqrt(cost), 120000));
-		_DropPheromone(ColonyPosition, 1.0/Math.Sqrt(cost), 120000);
-		if(FoodPosition.HasValue)
-			_DropPheromone(FoodPosition.Value, 1.0/Math.Sqrt(cost), 120000);
+		solution.ForEach(v =>
+			v.Edges.ForEach(pheromone =>
+			{
+				_DropPheromone(pheromone, 1.0 / cost);
+			})
+		);
 
 		//Reset visited vertices.
 		VisitedVertices = new List<Vertex>();
 	}
 
-	private void _DropPheromone(Vector2 position, double ph, double dur)
+	private void _DropPheromone(Pheromone pheromone, double ph)
 	{
-		var parent = (Node)this.GetParent();
-		var pherormoneScene = (PackedScene)GD.Load("res://Pheromone/Pheromone.tscn");
-		var pheromone = (Pheromone)pherormoneScene.Instantiate();
-		pheromone.RenewDuration(dur);
 		pheromone.Update(ph);
-		pheromone.Name = $"Pheromone {Guid.NewGuid()}";
-		pheromone.Position = position;
-		parent.AddChild(pheromone);
 	}
 
 }

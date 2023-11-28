@@ -13,7 +13,7 @@ public partial class DecreaseAlpha : Button
 			}
 		}
 		this.EditText("Alpha", v=>{--v; return v < 0 ? 0 : v;});
-		var antFactory = parent.GetNode<NewAnt>("AntFactory");
+		var antFactory = parent.GetNode<AntFactory>("AntFactory");
 		antFactory.Alpha--;
 		base._Pressed();
 	}

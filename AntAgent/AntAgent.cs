@@ -7,7 +7,7 @@ public partial class AntAgent : Ant
 {
 	public double PheromoneImportance = 1;
 	public double QualityImportance = 1;
-	private const double AdjacentDistance = 75;
+	private double AdjacentDistance => 80 * (Scale.X + Scale.Y)/2;
 	private double AdjacentRatio => AdjacentDistance / 2;
 	private double SelfVertexRatio => 2 * AdjacentRatio / 5;
 	private List<Vertex> VisitedVertices { get; set; }
@@ -88,7 +88,6 @@ public partial class AntAgent : Ant
 			v.Quality = _Heuristic(v);
 		});
 
-		adjacents = adjacents.Where(v => v.Edges.Count > 0).ToList();
 		return adjacents;
 	}
 
@@ -137,6 +136,7 @@ public partial class AntAgent : Ant
 		{
 			selectedIndex = Random.Shared.Next(0, adjacents.Count());
 		}
+		GD.Print($"SI: {selectedIndex}, AdCt: {adjacents.Count}");
 		TargetPosition = adjacents[selectedIndex].Position;
 		//Put the choosed vertex in the VisitedVertices list.
 		VisitedVertices.Add(adjacents[selectedIndex]);

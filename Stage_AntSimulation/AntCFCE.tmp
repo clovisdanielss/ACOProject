@@ -82,7 +82,6 @@ text = "Beta: 1"
 editable = false
 
 [node name="Scale" type="TextEdit" parent="."]
-visible = false
 offset_left = 15.0
 offset_top = 687.0
 offset_right = 215.0
@@ -91,7 +90,6 @@ text = "Escala: 1"
 editable = false
 
 [node name="ScalePlus" type="Button" parent="."]
-visible = false
 offset_left = 230.0
 offset_top = 687.0
 offset_right = 280.0
@@ -100,7 +98,6 @@ text = "+"
 script = ExtResource("8_yagjx")
 
 [node name="ScaleMinus" type="Button" parent="."]
-visible = false
 offset_left = 290.0
 offset_top = 687.0
 offset_right = 340.0

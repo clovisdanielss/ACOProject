@@ -12,7 +12,7 @@ public partial class DecreaseBeta : Button
 				ant.QualityImportance --;
 		}
 		this.EditText("Beta", v=>{--v; return v < 0 ? 0 : v;});
-		var antFactory = parent.GetNode<NewAnt>("AntFactory");
+		var antFactory = parent.GetNode<AntFactory>("AntFactory");
         antFactory.Beta--;
 		base._Pressed();
 	}

@@ -11,7 +11,7 @@ public partial class IncreaseAlpha : Button
 			ant.PheromoneImportance++;
 		}
 		this.EditText("Alpha", v=>++v);
-		var antFactory = parent.GetNode<NewAnt>("AntFactory");
+		var antFactory = parent.GetNode<AntFactory>("AntFactory");
 		antFactory.Alpha++;
 		base._Pressed();
 	}

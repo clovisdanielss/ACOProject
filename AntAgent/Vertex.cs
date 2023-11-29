@@ -8,14 +8,16 @@ public class Vertex
 	public double Radius { get; set; }
 	public double Quality { get; set; }
 	public List<Pheromone> PheromoneCluster { get; set; }
-	public double Pheromone => PheromoneCluster.Sum(p => p.Value);
-	public Vector2 Position {get;set;}
+	public double Pheromone => PheromoneCluster.Sum(p => p.Values[Orientation]);
+	public Vector2 Position { get; set; }
+	public int Orientation { get; set; }
 
-	public Vertex(Vector2 pos, double r)
+	public Vertex(Vector2 pos, double r, int orientation)
 	{
 		PheromoneCluster = new List<Pheromone>();
 		Position = pos;
 		Radius = r;
+		Orientation = orientation;
 	}
 
 	public bool IntersectWith(Vertex v)

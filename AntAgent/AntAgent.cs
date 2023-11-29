@@ -2,6 +2,7 @@ using Godot;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 public partial class AntAgent : Ant
 {
@@ -19,7 +20,7 @@ public partial class AntAgent : Ant
 
 	private Vertex _GetSelfVertex()
 	{
-		return new Vertex(Position, SelfVertexRatio);
+		return new Vertex(Position, SelfVertexRatio, -1);
 	}
 
 	public override void _Process(double delta)
@@ -63,20 +64,14 @@ public partial class AntAgent : Ant
 		var parent = this.GetParent();
 		var pheromones = parent.GetChildren().Where(node => node.Name.ToString().Contains("Pheromone"));
 		//Create vertex based on current position, N, NE, E, SE, S, SW, W, NW
-		List<Vertex> adjacents = new List<Vertex>
-		{
-			new(Position + OrientationOffset.North(AdjacentDistance), AdjacentRatio),
-			new(Position + OrientationOffset.NorthEast(AdjacentDistance), AdjacentRatio),
-			new(Position + OrientationOffset.East(AdjacentDistance), AdjacentRatio),
-			new(Position + OrientationOffset.SouthEast(AdjacentDistance), AdjacentRatio),
-			new(Position + OrientationOffset.South(AdjacentDistance), AdjacentRatio),
-			new(Position + OrientationOffset.SouthWest(AdjacentDistance), AdjacentRatio),
-			new(Position + OrientationOffset.West(AdjacentDistance), AdjacentRatio),
-			new(Position + OrientationOffset.NorthWest(AdjacentDistance), AdjacentRatio)
-		};
+		List<Vertex> adjacents = new List<Vertex>();
+		var orientations = typeof(OrientationOffset).GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+		for(var orientation = 0; orientation < orientations.Length; orientation ++){
+			var vec = (Vector2)orientations[orientation].Invoke(null, new object[] {AdjacentDistance});
+			adjacents.Add(new(Position + vec, AdjacentRatio, orientation));	
+		}
 		//Filter adjacets to remove the ones which scape the screen
-		adjacents = adjacents.Where(v => !v.IsOffscreen(GetViewportRect().Size.X, GetViewportRect().Size.Y))
-							 .Where(v => !v.IntersectWith(ColonyPosition)).ToList();
+		adjacents = adjacents.Where(v => !v.IsOffscreen(GetViewportRect().Size.X, GetViewportRect().Size.Y)).ToList();
 		//The ant should have a default ratio.
 		adjacents.ForEach(v =>
 		{
@@ -95,13 +90,13 @@ public partial class AntAgent : Ant
 	{
 		if (HasFood)
 		{
-			return 1.0 / ColonyPosition.DistanceTo(v.Position);
+			return 1.0 / ColonyPosition.DistanceSquaredTo(v.Position);
 		}
 		if (!HasFood)
 		{
 			if (FoodPosition.HasValue)
 			{
-				return 1.0 / FoodPosition.Value.DistanceTo(v.Position);
+				return 1.0 / FoodPosition.Value.DistanceSquaredTo(v.Position);
 			}
 		}
 		return 1.0;
@@ -116,7 +111,6 @@ public partial class AntAgent : Ant
 		var adjacents = _CreateAdjacents();
 		//Compute the probability of moving. (If there is no pherormone every vertex has the sabe prob.)
 		var probs = adjacents.Select((adj, i) => new { prob = _ProbabilityOfMoving(adj, adjacents), index = i }).OrderBy(p => p.prob);
-
 		//Choose a vertex to set as TargetPosition.
 		var randomNumber = Random.Shared.NextDouble();
 		var selectedIndex = -1;
@@ -131,14 +125,25 @@ public partial class AntAgent : Ant
 				break;
 			}
 		}
-
 		if (sumOfProbs == 0 || selectedIndex == -1)
 		{
-			selectedIndex = Random.Shared.Next(0, adjacents.Count());
+			Reset();
+			return;
+			//selectedIndex = Random.Shared.Next(0, adjacents.Count());
 		}
 		TargetPosition = adjacents[selectedIndex].Position;
 		//Put the choosed vertex in the VisitedVertices list.
 		VisitedVertices.Add(adjacents[selectedIndex]);
+	}
+
+	private void Reset(){
+		VisitedVertices = new List<Vertex>();
+		if(HasFood){
+			Position = FoodPosition.Value;
+		}else{
+			Position = ColonyPosition;
+		}
+		TargetPosition = Position;
 	}
 
 
@@ -156,7 +161,7 @@ public partial class AntAgent : Ant
 
 	private double _ProbabilityOfMoving(Vertex currentAdjacent, List<Vertex> adjacents)
 	{
-		var nonVisitedAdjacents = adjacents.Where(adj => !VisitedVertices.Any(adj.IntersectWith));
+		var nonVisitedAdjacents = adjacents.Where(adj => !VisitedVertices.Any(v => adj.IntersectWith(v)));
 		if (!nonVisitedAdjacents.Any()) return 0;
 		if (VisitedVertices.Any(u => u.IntersectWith(currentAdjacent))) return 0;
 
@@ -192,7 +197,8 @@ public partial class AntAgent : Ant
 		solution.ForEach(v =>
 			v.PheromoneCluster.ForEach(pheromone =>
 			{
-				_DropPheromone(pheromone, 1.0 / cost);
+				
+				_DropPheromone(pheromone, 1.0 / cost, v.Orientation);
 			})
 		);
 
@@ -200,9 +206,9 @@ public partial class AntAgent : Ant
 		VisitedVertices = new List<Vertex>();
 	}
 
-	private void _DropPheromone(Pheromone pheromone, double ph)
+	private void _DropPheromone(Pheromone pheromone, double ph, int orientation)
 	{
-		pheromone.Update(ph);
+		pheromone.Update(ph, orientation);
 	}
 
 }

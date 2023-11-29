@@ -8,9 +8,9 @@ public partial class Ant : CharacterBody2D
 	/// Ant by default is Idle.
 	/// Any ant that moves should hinerit from Ant.
 	/// </summary>
-	public const float MaxSpeed = 200.0f;
-	public const float Speed = 50.0f;
-	public const float SpeedAdjustment = .85f;
+	public const float MaxSpeed = 500.0f;
+	public const float Speed = 500.0f;
+	public const float SpeedAdjustment = .5f;
 	public Vector2? TargetPosition { get; set; } = null;
 	public Vector2? TargetVector => TargetPosition.HasValue ? TargetPosition - Position : null;
 	public Vector2 ColonyPosition { get; set; }

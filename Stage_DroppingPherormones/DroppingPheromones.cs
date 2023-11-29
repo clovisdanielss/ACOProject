@@ -63,12 +63,14 @@ public partial class DroppingPheromones : Node2D
 		return new Vector2(x, y);
 	}
 
-	private void _DropPheromone(Vector2 position, double val = 1.0)
+	private void _DropPheromone(Vector2 position)
 	{
 		var parent = (Node)this;
 		var pherormoneScene = (PackedScene)GD.Load("res://Pheromone/Pheromone.tscn");
 		var pheromone = (Pheromone)pherormoneScene.Instantiate();
-		pheromone.Update(val);
+		for(var orientation = 0; orientation < pheromone.Values.Length; orientation++){
+			pheromone.Update(Random.Shared.NextDouble()/10,orientation);	
+		}
 		pheromone.Name = $"Pheromone {Guid.NewGuid()}";
 		pheromone.Position = position;
 		parent.AddChild(pheromone);
@@ -78,7 +80,7 @@ public partial class DroppingPheromones : Node2D
 		var viewportSize = GetViewport().GetWindow().Size;
 		for(float i = 0; i < viewportSize.X + 50; i+=50){
 			for(float j = 0; j < viewportSize.Y + 50; j+=50){
-				_DropPheromone(new(i,j), Random.Shared.NextDouble()/100);
+				_DropPheromone(new(i,j));
 			}
 		}
 	}

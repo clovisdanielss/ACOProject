@@ -30,7 +30,7 @@ offset_left = 230.0
 offset_top = 837.0
 offset_right = 430.0
 offset_bottom = 877.0
-text = "Nova Formiga"
+text = "Reiniciar Teste"
 script = ExtResource("3_0l46v")
 
 [node name="Alpha" type="TextEdit" parent="."]
@@ -119,3 +119,6 @@ scale = Vector2(4, 4)
 [node name="Food 3" parent="." instance=ExtResource("10_cchms")]
 position = Vector2(1149, 802)
 scale = Vector2(4, 4)
+
+[node name="Timer" type="Timer" parent="."]
+autostart = true

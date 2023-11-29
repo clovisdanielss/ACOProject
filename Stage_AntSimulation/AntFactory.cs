@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using System.Linq;
 
 public partial class AntFactory : Button
 {
@@ -8,7 +9,13 @@ public partial class AntFactory : Button
 	public float MapScale { get; set; } = 1;
 	public override void _Pressed()
 	{
-		_CreateAntAgent();
+		this.EditText("FCounter", v => 0);
+		foreach(var c in this.GetParent().GetChildren().Where(c => c is AntAgent)) c.QueueFree();
+		foreach(var c in this.GetParent().GetChildren().Where(c => c is Pheromone)) c.QueueFree();
+		(this.GetParent() as AntSimulation).Delay = 80000;
+		(this.GetParent() as AntSimulation).InitializePheromone();
+		for (int i = 0; i < 10; i++)
+			_CreateAntAgent();
 		base._Pressed();
 	}
 

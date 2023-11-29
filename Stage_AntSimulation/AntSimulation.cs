@@ -4,10 +4,9 @@ using System.Linq;
 
 public partial class AntSimulation : Node2D
 {
-	private double Delay = 10000;
+	public double Delay = 0;
 	public override void _Ready()
 	{
-		_InitializePheromone();
 	}
 
 	public override void _Input(InputEvent @event)
@@ -28,6 +27,10 @@ public partial class AntSimulation : Node2D
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
+		Delay -= delta * 1000;
+		if (Delay <= 0){
+			foreach(var c in this.GetChildren().Where(c => c is AntAgent)) c.QueueFree();
+		}
 	}
 
 	public Vector2 GetRandomScreenPosition()
@@ -42,20 +45,28 @@ public partial class AntSimulation : Node2D
 		return new Vector2(x, y);
 	}
 
-	private void _DropPheromone(Vector2 position, double val = 1.0)
+	private void _DropPheromone(Vector2 position)
 	{
 		var parent = (Node)this;
 		var pherormoneScene = (PackedScene)GD.Load("res://Pheromone/Pheromone.tscn");
 		var pheromone = (Pheromone)pherormoneScene.Instantiate();
-		pheromone.Update(val);
+		for(var orientation = 0; orientation < pheromone.Values.Length; orientation++){
+			pheromone.Values[orientation] = Normalize(Random.Shared.NextDouble());	
+		}
 		pheromone.Name = $"Pheromone {Guid.NewGuid()}";
 		pheromone.Position = position;
 		parent.AddChild(pheromone);
 	}
 
+	private double Normalize(double val){
+		var viewportSize = GetViewport().GetWindow().Size;
+		var distOrigin = new Vector2(viewportSize.X, viewportSize.Y).DistanceTo(new(0,0));
+		return val/distOrigin;
+	}
+
 	
 
-	private void _InitializePheromone()
+	public void InitializePheromone()
 	{
 		var offset = 50;
 		var viewportSize = GetViewport().GetWindow().Size;
@@ -63,7 +74,7 @@ public partial class AntSimulation : Node2D
 		{
 			for (float j = 0; j < viewportSize.Y + offset; j += offset)
 			{
-				_DropPheromone(new(i, j), Random.Shared.NextDouble() / 100);
+				_DropPheromone(new(i, j));
 			}
 		}
 	}

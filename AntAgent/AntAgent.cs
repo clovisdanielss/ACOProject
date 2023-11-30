@@ -109,14 +109,12 @@ public partial class AntAgent : Ant
 			Position = FoodPosition.Value;
 			TargetPosition = FoodPosition.Value;
 			CurrentVertex = Graph.First(e => e.GetVertexAt(FoodPosition.Value) != null).GetVertexAt(FoodPosition.Value);
-			GD.Print(CurrentVertex);
 		}
 		else
 		{
 			Position = ColonyPosition;
 			TargetPosition = ColonyPosition;
 			CurrentVertex = Graph.First(e => e.GetVertexAt(ColonyPosition) != null).GetVertexAt(ColonyPosition);
-			GD.Print(CurrentVertex);
 		}		
 	}
 
@@ -179,14 +177,10 @@ public partial class AntAgent : Ant
 		{
 			if (path.Any(e => edge.IsThisEdge(e.u, e.v)))
 			{
-				GD.Print(edge.Pheromone);
 				edge.Update(1.0 / cost);
-				GD.Print(edge.Pheromone);
 			}else{
 				edge.Update(0);
 			}
-			edge.U.QueueRedraw();
-			edge.V.QueueRedraw();
 		}
 		//Reset visited vertices.
 		Reset();

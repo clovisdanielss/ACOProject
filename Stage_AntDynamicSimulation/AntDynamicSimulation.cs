@@ -45,8 +45,8 @@ public partial class AntDynamicSimulation : Node2D
 			Beta = 1,
 			Ants = 20,
 			GridOffset = 100,
-			InitialTimer = 80000,
-			IterationsPerSetOfParameters = 5,
+			InitialTimer = 50000,
+			IterationsPerSetOfParameters = 2,
 		});
 		SimulationParameters.Update(Simulations.Pop());
 		Simulate();
@@ -75,6 +75,7 @@ public partial class AntDynamicSimulation : Node2D
 			if (Simulations.Count == 0)
 			{
 				foreach (var c in this.GetChildren().Where(c => c is AntAgent)) c.QueueFree();
+				foreach (var c in this.GetChildren().Where(c => c is Vertex)) c.QueueFree();
 				ShouldOutput = false;
 				return false;
 			}
@@ -90,6 +91,7 @@ public partial class AntDynamicSimulation : Node2D
 		this.EditText("Beta", v => (float)Beta);
 		this.EditText("Ants", v => (float)Ants);
 		foreach (var c in this.GetChildren().Where(c => c is AntAgent)) c.QueueFree();
+		foreach (var c in this.GetChildren().Where(c => c is Vertex)) c.QueueFree();
 		Timer = InitialTimer;
 		_CreateGraph();
 	}
@@ -122,7 +124,7 @@ public partial class AntDynamicSimulation : Node2D
 		{
 			for (float j = 0; j < viewportSize.Y + offset; j += offset)
 			{
-				vertices.Add(_CreateVertex(new(i, j)));
+				vertices.Add(_CreateVertex(new(i + Random.Shared.Next(-offset / 3, offset / 3), j + Random.Shared.Next(-offset / 3, offset / 3))));
 			}
 		}
 		var colony = GetNode<Area2D>("AntColony");
@@ -136,16 +138,13 @@ public partial class AntDynamicSimulation : Node2D
 
 		vertices.ForEach(v =>
 		{
-			var adjacents = vertices.Where(u => v.Position.IsGeometricAdjacent(u.Position, offset));
-			if (!adjacents.Any())
-			{
-				adjacents = vertices.Where(u => v.Position.IntersectWith(u.Position, offset));
-			}
+			var adjacents = vertices.Where(u => v.Position.IntersectWith(u.Position, offset * 1.34f));
+
 			foreach (var adj in adjacents)
 			{
 				if (v != adj)
 				{
-					var edge = new Edge(v, adj, Normalize(Random.Shared.NextDouble()));
+					var edge = new Edge(v, adj, Random.Shared.NextDouble());
 					if (!Graph.Any(edge.Equals))
 					{
 						Graph.Add(edge);

@@ -1,0 +1,124 @@
+[gd_scene load_steps=11 format=3 uid="uid://3axh1bc6ba12"]
+
+[ext_resource type="Script" path="res://Stage_AntSimulation/AntSimulation.cs" id="1_ac508"]
+[ext_resource type="PackedScene" uid="uid://dhqwhpcd4gd7p" path="res://AntColony/AntColony.tscn" id="2_yihlm"]
+[ext_resource type="Script" path="res://Stage_AntSimulation/AntFactory.cs" id="3_0l46v"]
+[ext_resource type="Script" path="res://Stage_AntSimulation/IncreaseAlpha.cs" id="5_0qkem"]
+[ext_resource type="Script" path="res://Stage_AntSimulation/DecreaseAlpha.cs" id="6_yb7as"]
+[ext_resource type="Script" path="res://Stage_AntSimulation/IncreaseBeta.cs" id="7_8t4o2"]
+[ext_resource type="Script" path="res://Stage_AntSimulation/DecreaseBeta.cs" id="8_wvf7t"]
+[ext_resource type="Script" path="res://Stage_AntSimulation/IncreaseScale.cs" id="8_yagjx"]
+[ext_resource type="Script" path="res://Stage_AntSimulation/DecreaseScale.cs" id="9_kqcqr"]
+[ext_resource type="PackedScene" uid="uid://cb71v21lnsw0n" path="res://Food/Food.tscn" id="10_cchms"]
+
+[node name="AntSimulation" type="Node2D"]
+script = ExtResource("1_ac508")
+
+[node name="AntColony" parent="." instance=ExtResource("2_yihlm")]
+position = Vector2(933, 500)
+
+[node name="FCounter" type="TextEdit" parent="."]
+offset_left = 15.0
+offset_top = 837.0
+offset_right = 215.0
+offset_bottom = 877.0
+text = "Contagem: 0"
+editable = false
+
+[node name="AntFactory" type="Button" parent="."]
+offset_left = 230.0
+offset_top = 837.0
+offset_right = 430.0
+offset_bottom = 877.0
+text = "Reiniciar Teste"
+script = ExtResource("3_0l46v")
+
+[node name="Alpha" type="TextEdit" parent="."]
+offset_left = 15.0
+offset_top = 787.0
+offset_right = 215.0
+offset_bottom = 827.0
+text = "Alpha: 1"
+editable = false
+
+[node name="AlphaPlus" type="Button" parent="."]
+offset_left = 230.0
+offset_top = 787.0
+offset_right = 280.0
+offset_bottom = 827.0
+text = "+"
+script = ExtResource("5_0qkem")
+
+[node name="AlphaMinus" type="Button" parent="."]
+offset_left = 290.0
+offset_top = 787.0
+offset_right = 340.0
+offset_bottom = 827.0
+text = "-"
+script = ExtResource("6_yb7as")
+
+[node name="BetaPlus" type="Button" parent="."]
+offset_left = 230.0
+offset_top = 737.0
+offset_right = 280.0
+offset_bottom = 777.0
+text = "+"
+script = ExtResource("7_8t4o2")
+
+[node name="BetaMinus" type="Button" parent="."]
+offset_left = 290.0
+offset_top = 737.0
+offset_right = 340.0
+offset_bottom = 777.0
+text = "-"
+script = ExtResource("8_wvf7t")
+
+[node name="Beta" type="TextEdit" parent="."]
+offset_left = 15.0
+offset_top = 737.0
+offset_right = 215.0
+offset_bottom = 777.0
+text = "Beta: 1"
+editable = false
+
+[node name="Scale" type="TextEdit" parent="."]
+visible = false
+offset_left = 15.0
+offset_top = 687.0
+offset_right = 215.0
+offset_bottom = 727.0
+text = "Escala: 1"
+editable = false
+
+[node name="ScalePlus" type="Button" parent="."]
+visible = false
+offset_left = 230.0
+offset_top = 687.0
+offset_right = 280.0
+offset_bottom = 727.0
+text = "+"
+script = ExtResource("8_yagjx")
+
+[node name="ScaleMinus" type="Button" parent="."]
+visible = false
+offset_left = 290.0
+offset_top = 687.0
+offset_right = 340.0
+offset_bottom = 727.0
+text = "-"
+script = ExtResource("9_kqcqr")
+
+[node name="Food 1" parent="." instance=ExtResource("10_cchms")]
+position = Vector2(183, 179)
+scale = Vector2(4, 4)
+
+[node name="Food 2" parent="." instance=ExtResource("10_cchms")]
+position = Vector2(1505, 326)
+scale = Vector2(4, 4)
+
+[node name="Food 3" parent="." instance=ExtResource("10_cchms")]
+position = Vector2(1149, 802)
+scale = Vector2(4, 4)
+
+[node name="Timer" type="Timer" parent="."]
+autostart = true

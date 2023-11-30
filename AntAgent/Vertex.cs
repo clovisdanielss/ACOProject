@@ -3,9 +3,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 public partial class Vertex : Area2D
 {
+	private static bool Debug { get; set; }
 	public Guid Id { get; set; }
 	public List<Edge> Edges { get; private set; }
 	public Vertex()
@@ -14,8 +16,13 @@ public partial class Vertex : Area2D
 		Edges = new List<Edge>();
 	}
 
+	public static void SetDebug(bool val)
+	{
+		Vertex.Debug = val;
+	}
 	public override void _Draw()
 	{
+		if (!Debug) { base._Draw(); return; };
 		foreach (var edge in Edges)
 		{
 			DrawLine(ToLocal(Position), ToLocal(edge.GetOtherVertex(this).Position), new Color()
@@ -23,7 +30,7 @@ public partial class Vertex : Area2D
 				R = 1,
 				G = 0,
 				B = 0,
-				A = (float)edge.Pheromone * 100,
+				A = (float)edge.Pheromone,
 			}, 2);
 		}
 

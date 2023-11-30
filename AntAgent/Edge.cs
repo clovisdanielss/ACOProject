@@ -36,6 +36,12 @@ public partial class Edge
 	public void Update(double deltaTau)
 	{
 		Tau = (1 - Rho) * Tau + Rho * deltaTau;
+		QueueRedraw();
+	}
+
+	public void QueueRedraw(){
+		U.QueueRedraw();
+		V.QueueRedraw();
 	}
 
 	public Vertex GetOtherVertex(Vertex v){

@@ -1,0 +1,72 @@
+[gd_scene load_steps=4 format=3 uid="uid://ibem2x5x04y6"]
+
+[ext_resource type="Script" path="res://Stage_AntDynamicSimulation/AntDynamicSimulation.cs" id="1_k5bvk"]
+[ext_resource type="PackedScene" uid="uid://dhqwhpcd4gd7p" path="res://AntColony/AntColony.tscn" id="2_wf40y"]
+[ext_resource type="PackedScene" uid="uid://cb71v21lnsw0n" path="res://Food/Food.tscn" id="4_bfexk"]
+
+[node name="AntDynamicSimulation" type="Node2D"]
+script = ExtResource("1_k5bvk")
+
+[node name="AntColony" parent="." instance=ExtResource("2_wf40y")]
+position = Vector2(834, 578)
+
+[node name="FCounter" type="TextEdit" parent="."]
+offset_left = 20.0
+offset_top = 838.0
+offset_right = 220.0
+offset_bottom = 878.0
+text = "Contagem: 0"
+editable = false
+
+[node name="Alpha" type="TextEdit" parent="."]
+offset_left = 20.0
+offset_top = 788.0
+offset_right = 220.0
+offset_bottom = 828.0
+text = "Alpha: 1"
+editable = false
+
+[node name="Beta" type="TextEdit" parent="."]
+offset_left = 20.0
+offset_top = 738.0
+offset_right = 220.0
+offset_bottom = 778.0
+text = "Beta: 1"
+editable = false
+
+[node name="Food 1" parent="." instance=ExtResource("4_bfexk")]
+position = Vector2(49, 54)
+scale = Vector2(4, 4)
+
+[node name="Food 2" parent="." instance=ExtResource("4_bfexk")]
+position = Vector2(1555, 45)
+scale = Vector2(4, 4)
+
+[node name="Food 3" parent="." instance=ExtResource("4_bfexk")]
+position = Vector2(1553, 862)
+scale = Vector2(4, 4)
+
+[node name="Timer" type="Timer" parent="."]
+autostart = true
+
+[node name="SimulationTime" type="TextEdit" parent="."]
+offset_left = 231.0
+offset_top = 840.0
+offset_right = 509.0
+offset_bottom = 880.0
+text = "Tempo Restante (Iteração): 0"
+editable = false
+
+[node name="Output" type="TextEdit" parent="."]
+offset_left = 232.0
+offset_top = 694.0
+offset_right = 505.0
+offset_bottom = 834.0
+
+[node name="Ants" type="TextEdit" parent="."]
+offset_left = 20.0
+offset_top = 685.0
+offset_right = 220.0
+offset_bottom = 725.0
+text = "Formigas: 0"
+editable = false

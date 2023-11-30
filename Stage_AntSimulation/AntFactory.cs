@@ -11,9 +11,9 @@ public partial class AntFactory : Button
 	{
 		this.EditText("FCounter", v => 0);
 		foreach(var c in this.GetParent().GetChildren().Where(c => c is AntAgent)) c.QueueFree();
-		foreach(var c in this.GetParent().GetChildren().Where(c => c is Pheromone)) c.QueueFree();
+		foreach(var c in this.GetParent().GetChildren().Where(c => c is Edge)) c.QueueFree();
 		(this.GetParent() as AntSimulation).Delay = 80000;
-		(this.GetParent() as AntSimulation).InitializePheromone();
+		//(this.GetParent() as AntSimulation).InitializePheromone();
 		for (int i = 0; i < 10; i++)
 			_CreateAntAgent();
 		base._Pressed();
@@ -27,8 +27,8 @@ public partial class AntFactory : Button
 		antAgent.Position = parent.GetNode<Area2D>("AntColony").Position;
 		antAgent.ColonyPosition = antAgent.Position;
 		antAgent.TargetPosition = antAgent.Position;
-		antAgent.PheromoneImportance = Alpha;
-		antAgent.QualityImportance = Beta;
+		antAgent.Alpha = Alpha;
+		antAgent.Beta = Beta;
 		antAgent.Scale = new Vector2(MapScale, MapScale);
 		parent.AddChild(antAgent);
 	}

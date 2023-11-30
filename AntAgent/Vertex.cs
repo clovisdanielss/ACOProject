@@ -2,41 +2,61 @@ using Godot;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
-public class Vertex
+public partial class Vertex : Area2D
 {
-	public double Radius { get; set; }
-	public double Quality { get; set; }
-	public List<Pheromone> PheromoneCluster { get; set; }
-	public double Pheromone => PheromoneCluster.Sum(p => p.Values[Orientation]);
-	public Vector2 Position { get; set; }
-	public int Orientation { get; set; }
-
-	public Vertex(Vector2 pos, double r, int orientation)
+	public Guid Id { get; set; }
+	public List<Edge> Edges { get; private set; }
+	public Vertex()
 	{
-		PheromoneCluster = new List<Pheromone>();
-		Position = pos;
-		Radius = r;
-		Orientation = orientation;
+		Id = Guid.NewGuid();
+		Edges = new List<Edge>();
 	}
 
-	public bool IntersectWith(Vertex v)
+	public override void _Draw()
 	{
-		return Math.Pow(v.Position.X - Position.X, 2) + Math.Pow(v.Position.Y - Position.Y, 2) < Math.Pow(Radius, 2);
+		foreach (var edge in Edges)
+		{
+			DrawLine(ToLocal(Position), ToLocal(edge.GetOtherVertex(this).Position), new Color()
+			{
+				R = 1,
+				G = 0,
+				B = 0,
+				A = (float)edge.Pheromone * 100,
+			}, 2);
+		}
+
+		DrawCircle(ToLocal(Position), 5, new Color
+		{
+			R = 1,
+			G = 0,
+			B = 0,
+			A = .5f,
+		});
+		base._Draw();
+	}
+	public Edge GetEdge(Vertex v)
+	{
+		return Edges.FirstOrDefault(e => e.U == v || e.V == v);
+	}
+	public override bool Equals(object obj)
+	{
+		if (obj is Vertex u)
+		{
+			return Id == u.Id;
+		}
+		return base.Equals(obj);
 	}
 
-	public bool IntersectWith(Vector2 v)
+	public static bool operator ==(Vertex v, object u)
 	{
-		return Math.Pow(v.X - Position.X, 2) + Math.Pow(v.Y - Position.Y, 2) < Math.Pow(Radius, 2);
+		return v?.Equals(u) ?? u == null;
 	}
 
-	public bool IsOffscreen(float width, float height)
+	public static bool operator !=(Vertex v, object u)
 	{
-		return Position.X < 0 || Position.X > width || Position.Y > height || Position.Y < 0;
+		return !v?.Equals(u) ?? u != null;
 	}
 
-	public override string ToString()
-	{
-		return $"{Position} Q:{Quality} Ph:{Pheromone}";
-	}
 }

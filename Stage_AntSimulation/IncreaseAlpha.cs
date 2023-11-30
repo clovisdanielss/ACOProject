@@ -8,7 +8,7 @@ public partial class IncreaseAlpha : Button
 		var antAgents = parent.GetChildren().Where(c => c is AntAgent).Select(c => c as AntAgent);
 		foreach (var ant in antAgents)
 		{
-			ant.PheromoneImportance++;
+			ant.Alpha++;
 		}
 		this.EditText("Alpha", v=>++v);
 		var antFactory = parent.GetNode<AntFactory>("AntFactory");

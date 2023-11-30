@@ -8,8 +8,8 @@ public partial class DecreaseBeta : Button
 		var parent = GetParent();
 		var antAgents = parent.GetChildren().Where(c => c is AntAgent).Select(c => c as AntAgent);
 		foreach(var ant in antAgents){
-			if(ant.QualityImportance - 1 >= 0)
-				ant.QualityImportance --;
+			if(ant.Beta - 1 >= 0)
+				ant.Beta --;
 		}
 		this.EditText("Beta", v=>{--v; return v < 0 ? 0 : v;});
 		var antFactory = parent.GetNode<AntFactory>("AntFactory");

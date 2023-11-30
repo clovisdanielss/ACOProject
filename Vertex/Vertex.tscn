@@ -1,0 +1,19 @@
+[gd_scene load_steps=3 format=3 uid="uid://c2v65q7pqnncl"]
+
+[ext_resource type="Script" path="res://AntAgent/Vertex.cs" id="1_ia3je"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_6qqov"]
+
+[node name="Vertex" type="Area2D"]
+z_index = -2
+position = Vector2(93, 64)
+scale = Vector2(0.5, 0.5)
+collision_layer = 2
+collision_mask = 3
+script = ExtResource("1_ia3je")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+z_index = -1
+scale = Vector2(0.5, 0.5)
+shape = SubResource("CircleShape2D_6qqov")
+debug_color = Color(0, 0.619608, 0.721569, 0.419608)

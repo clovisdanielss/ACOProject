@@ -8,8 +8,8 @@ public partial class DecreaseAlpha : Button
 		var parent = GetParent();
 		var antAgents = parent.GetChildren().Where(c => c is AntAgent).Select(c => c as AntAgent);
 		foreach(var ant in antAgents){
-			if(ant.PheromoneImportance - 1 >= 0){
-				ant.PheromoneImportance --;
+			if(ant.Alpha - 1 >= 0){
+				ant.Alpha --;
 			}
 		}
 		this.EditText("Alpha", v=>{--v; return v < 0 ? 0 : v;});

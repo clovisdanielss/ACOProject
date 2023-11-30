@@ -45,18 +45,18 @@ public partial class AntSimulation : Node2D
 		return new Vector2(x, y);
 	}
 
-	private void _DropPheromone(Vector2 position)
-	{
-		var parent = (Node)this;
-		var pherormoneScene = (PackedScene)GD.Load("res://Pheromone/Pheromone.tscn");
-		var pheromone = (Pheromone)pherormoneScene.Instantiate();
-		for(var orientation = 0; orientation < pheromone.Values.Length; orientation++){
-			pheromone.Values[orientation] = Normalize(Random.Shared.NextDouble());	
-		}
-		pheromone.Name = $"Pheromone {Guid.NewGuid()}";
-		pheromone.Position = position;
-		parent.AddChild(pheromone);
-	}
+	// private void _DropPheromone(Vector2 position)
+	// {
+	// 	var parent = (Node)this;
+	// 	var pherormoneScene = (PackedScene)GD.Load("res://Pheromone/Pheromone.tscn");
+	// 	var pheromone = (Edge)pherormoneScene.Instantiate();
+	// 	for(var orientation = 0; orientation < pheromone.Values.Length; orientation++){
+	// 		pheromone.Values[orientation] = Normalize(Random.Shared.NextDouble());	
+	// 	}
+	// 	pheromone.Name = $"Pheromone {Guid.NewGuid()}";
+	// 	pheromone.Position = position;
+	// 	parent.AddChild(pheromone);
+	// }
 
 	private double Normalize(double val){
 		var viewportSize = GetViewport().GetWindow().Size;
@@ -66,16 +66,16 @@ public partial class AntSimulation : Node2D
 
 	
 
-	public void InitializePheromone()
-	{
-		var offset = 50;
-		var viewportSize = GetViewport().GetWindow().Size;
-		for (float i = 0; i < viewportSize.X + offset; i += offset)
-		{
-			for (float j = 0; j < viewportSize.Y + offset; j += offset)
-			{
-				_DropPheromone(new(i, j));
-			}
-		}
-	}
+	// public void InitializePheromone()
+	// {
+	// 	var offset = 50;
+	// 	var viewportSize = GetViewport().GetWindow().Size;
+	// 	for (float i = 0; i < viewportSize.X + offset; i += offset)
+	// 	{
+	// 		for (float j = 0; j < viewportSize.Y + offset; j += offset)
+	// 		{
+	// 			_DropPheromone(new(i, j));
+	// 		}
+	// 	}
+	// }
 }

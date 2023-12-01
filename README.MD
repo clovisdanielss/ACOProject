@@ -14,7 +14,7 @@ The algorithm is implemented using the following probabilistic formula:
 
 ![The formula](image-1.png)
 
-The $p^{k}_{i,j}(t)$ is the probability to the and $k$ go from the vertex $i$ to $j$ at iteration $t$.
+The $p^{k}\\_{i,j}(t)$ is the probability to the and $k$ go from the vertex $i$ to $j$ at iteration $t$.
 The $\tau_{i,j}(t)$ is the amout of pheromone that exists on the edge $<i,j>$ at iteration t. 
 The $\eta_{i,j}$ is any heurist you can use. In our case is $\frac{1}{len(<i,j>)}$, this way the ant will has greater probability to go to the nearest vertex. 
 When you see "se $j\in J^{k}$" you can read "if $j\in J^{k}$", I was too lazy when I print the formula, so It is in portuguese. By the way, $J^{k}$ is the set of vertices not visited by the ant $k$.
@@ -34,4 +34,4 @@ The project still incomplete, unfortunely I started when my vocations were finis
 
 
 ### Next steps
-I will work in the project providing a single scene with a better UI, and also use the ACO to solve TCP. 
+I will work in the project providing a single scene with a better UI, and also use the ACO to solve TCP. Fixing grammar errors in this readme because I'm not good in grammar in my mother language, let alone in english.

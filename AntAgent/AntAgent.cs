@@ -74,8 +74,9 @@ public partial class AntAgent : Ant
 	{
 		//Get adjacents vertices;
 		var adjacents = _GetAdjacents();
+
 		//Compute the probability of moving. (If there is no pherormone every vertex has the sabe prob.)
-		var probs = adjacents.Select((adja, i) => new { prob = _ProbabilityOfMoving(adja, adjacents), index = i }).OrderBy(p => p.prob);
+		var probs = adjacents.Select((adja, i) => new { prob = _ProbabilityOfMoving(adja, adjacents), index = i, ph = adja.GetEdge(CurrentVertex).Pheromone, heu = adja.GetEdge(CurrentVertex).Quality }).OrderBy(p => p.prob);
 		//Choose a vertex to set as TargetPosition.
 		var randomNumber = Random.Shared.NextDouble();
 		var selectedIndex = -1;
@@ -94,6 +95,13 @@ public partial class AntAgent : Ant
 		{
 			Reset();
 			return;
+		}
+		if (VisitedVertices.Count == 1 && !HasFood)
+		{
+			GD.Print(string.Join("\n", adjacents));
+			GD.Print(string.Join("\n", probs));
+			GD.Print("Selected: ", selectedIndex);
+			GD.Print("*****************************************");
 		}
 		CurrentVertex = adjacents[selectedIndex];
 		TargetPosition = CurrentVertex.Position;
@@ -115,7 +123,7 @@ public partial class AntAgent : Ant
 			Position = ColonyPosition;
 			TargetPosition = ColonyPosition;
 			CurrentVertex = Graph.First(e => e.GetVertexAt(ColonyPosition) != null).GetVertexAt(ColonyPosition);
-		}		
+		}
 	}
 
 
@@ -178,7 +186,9 @@ public partial class AntAgent : Ant
 			if (path.Any(e => edge.IsThisEdge(e.u, e.v)))
 			{
 				edge.Update(1.0 / cost);
-			}else{
+			}
+			else
+			{
 				edge.Update(0);
 			}
 		}

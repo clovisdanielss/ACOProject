@@ -45,11 +45,31 @@ public partial class AntDynamicSimulation : Node2D
 			Beta = 1,
 			Ants = 20,
 			GridOffset = 100,
-			InitialTimer = 50000,
+			InitialTimer = 500000,
 			IterationsPerSetOfParameters = 2,
+		});
+		Simulations.Push(new()
+		{
+			Alpha = 0,
+			Beta = 1,
+			Ants = 20,
+			GridOffset = 100,
+			InitialTimer = 30000,
+			IterationsPerSetOfParameters = 1,
 		});
 		SimulationParameters.Update(Simulations.Pop());
 		Simulate();
+	}
+
+	public override void _Input(InputEvent @event)
+	{
+		if (@event is InputEventKey key)
+		{
+			if (key.Pressed)
+			{
+				Vertex.SetDebug();
+			}
+		}
 	}
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
@@ -144,9 +164,9 @@ public partial class AntDynamicSimulation : Node2D
 			{
 				if (v != adj)
 				{
-					var edge = new Edge(v, adj, Random.Shared.NextDouble());
-					if (!Graph.Any(edge.Equals))
+					if (!Graph.Any(e => e.IsThisEdge(v, adj)))
 					{
+						var edge = new Edge(v, adj, Random.Shared.NextDouble());
 						Graph.Add(edge);
 					}
 				}

@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 /// <summary>
@@ -35,7 +36,7 @@ public partial class Edge
 	}
 	public void Update(double deltaTau)
 	{
-		Tau = (1 - Rho) * Tau + Rho * deltaTau;
+		Tau = ((1 - Rho) * Tau) + (Rho * deltaTau);
 		QueueRedraw();
 	}
 

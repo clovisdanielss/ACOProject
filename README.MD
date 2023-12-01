@@ -4,12 +4,14 @@
 In this project I implemented ACO for fun. ACO stands for ant colony optimization ant it is a metaheuristic, which is basicaly an algorithm that can be used to solve a vast variety of problems. 
 
 Here I've used Godot because I wanted to visualize the behavior of our ants.
+
 ![They will converge](image.png)
 
 Like I said before, the algorithm can be used to find a good solution a lot of problems. It was first used in the salesman traveller problem. In our case, I just want to test the algorithm first. So I decided to make a simple problem, to find a path between the food and the colony. Of course, It is idiotic to use ACO to solve this problem, just use Djikstra already. But I just want to check the convergence first. Later implementations I'll show working in STP. 
 
 ### The explanation
 The algorithm is implemented using the following probabilistic formula:
+
 ![The formula](image-1.png)
 
 The $p^{k}_{i,j}(t)$ is the probability to the and $k$ go from the vertex $i$ to $j$ at iteration $t$.
@@ -20,6 +22,7 @@ We can see that the more pheromone and the less the distance between vertex $i$ 
 Okay, but what about $\alpha$ and $\beta$ ? They are both constants defined before the execution. They define the importance balance between pheromone and the heuristic. 
 
 To update the pheromone, we used the default formula:
+
 ![The default formula](image-2.png)
 
 Here we have a new constant $\rho$ which is used to define the evaporation of the pheromone. Each iteration the pheromone is updated. 

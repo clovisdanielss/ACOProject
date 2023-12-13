@@ -38,4 +38,4 @@ The project still incomplete, unfortunely I started when my vocations were finis
 
 
 ### Next steps
-I will work in the project providing a single scene with a better UI, and also use the ACO to solve TCP. Fixing grammar errors in this readme because I'm not good in grammar in my mother language, let alone in english.
+I will work in the project providing a single scene with a better UI, and also use the ACO to solve STP. Fixing grammar errors in this readme because I'm not good in grammar in my mother language, let alone in english.

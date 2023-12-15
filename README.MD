@@ -7,7 +7,7 @@ Here I've used Godot because I wanted to visualize the behavior of our ants.
 
 ![They will converge](image.png)
 
-Like I said before, the algorithm can be used to find a good solution a lot of problems. It was first used in the salesman traveller problem. In our case, I just want to test the algorithm first. So I decided to make a simple problem, to find a path between the food and the colony. Of course, It is idiotic to use ACO to solve this problem, just use Djikstra already. But I just want to check the convergence first. Later implementations I'll show working in STP. 
+Like I said before, the algorithm can be used to find a good solution a lot of problems. It was first used in the traveller salesman problem. In our case, I just want to test the algorithm first. So I decided to make a simple problem, to find a path between the food and the colony. Of course, It is idiotic to use ACO to solve this problem, just use Djikstra already. But I just want to check the convergence first. Later implementations I'll show working in TSP. 
 
 ### The explanation
 The algorithm is implemented using the following probabilistic formula:
@@ -38,6 +38,6 @@ The project still incomplete, unfortunely I started when my vocations were finis
 
 
 ### Next steps
-1 - I will work in the project providing a single scene with a better UI, and also use the ACO to solve STP.
+1 - I will work in the project providing a single scene with a better UI, and also use the ACO to solve TSP.
 
 2 - Fixing grammar errors in this readme because I'm not good in grammar in my mother language, let alone in english.

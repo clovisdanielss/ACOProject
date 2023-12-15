@@ -6,7 +6,7 @@ using System.Linq;
 public class SetOfSimulationParameters
 {
 	public double InitialTimer = 0;
-	public int GridOffset = 50;
+	public int GridOffset;
 	public double Alpha { get; set; } = 1;
 	public double Beta { get; set; } = 1;
 	public int Ants { get; set; } = 10;
@@ -34,7 +34,7 @@ public partial class AntDynamicSimulation : Node2D
 	public int IterationsPerSetOfParameters => SimulationParameters.IterationsPerSetOfParameters;
 	public Stack<SetOfSimulationParameters> Simulations { get; set; }
 	public bool ShouldOutput = true;
-	public List<Edge> Graph;
+	public List<Edge> Graph = new List<Edge>();
 	public override void _Ready()
 	{
 		this.AppendText("Output", "Alpha; Beta; Ants; FoodConsumed; GridPheromoneOffset; Time");
@@ -45,7 +45,7 @@ public partial class AntDynamicSimulation : Node2D
 			Beta = 1,
 			Ants = 20,
 			GridOffset = 100,
-			InitialTimer = 500000,
+			InitialTimer = 600000,
 			IterationsPerSetOfParameters = 2,
 		});
 		Simulations.Push(new()
@@ -54,7 +54,7 @@ public partial class AntDynamicSimulation : Node2D
 			Beta = 1,
 			Ants = 20,
 			GridOffset = 100,
-			InitialTimer = 30000,
+			InitialTimer = 5000,
 			IterationsPerSetOfParameters = 1,
 		});
 		SimulationParameters.Update(Simulations.Pop());
@@ -113,68 +113,16 @@ public partial class AntDynamicSimulation : Node2D
 		foreach (var c in this.GetChildren().Where(c => c is AntAgent)) c.QueueFree();
 		foreach (var c in this.GetChildren().Where(c => c is Vertex)) c.QueueFree();
 		Timer = InitialTimer;
-		_CreateGraph();
+		Graph = new List<Edge>();
+		var origin = GraphFactory.CreateGraph(Graph, GetTree().Root.GetChild(0), GridOffset, GetViewport());
+		for (int i = 0; i < Ants; i++)
+			_CreateAntAgent(origin);
 	}
-
-	private Vertex _CreateVertex(Vector2 position)
-	{
-		var parent = (Node)this;
-		var vertexScene = (PackedScene)GD.Load("res://Vertex/Vertex.tscn");
-		var vertex = (Vertex)vertexScene.Instantiate();
-		vertex.Name = $"Vertex {vertex.Id}";
-		vertex.Position = position;
-		parent.AddChild(vertex);
-		return vertex;
-	}
-
 	private double Normalize(double val)
 	{
 		var viewportSize = GetViewport().GetWindow().Size;
 		var distOrigin = new Vector2(viewportSize.X, viewportSize.Y).DistanceTo(new(0, 0));
 		return val / distOrigin;
-	}
-
-	private void _CreateGraph()
-	{
-		var offset = GridOffset;
-		var viewportSize = GetViewport().GetWindow().Size;
-		List<Vertex> vertices = new List<Vertex>();
-		Graph = new List<Edge>();
-		for (float i = 0; i < viewportSize.X + offset; i += offset)
-		{
-			for (float j = 0; j < viewportSize.Y + offset; j += offset)
-			{
-				vertices.Add(_CreateVertex(new(i + Random.Shared.Next(-offset / 3, offset / 3), j + Random.Shared.Next(-offset / 3, offset / 3))));
-			}
-		}
-		var colony = GetNode<Area2D>("AntColony");
-		var colonyVertex = _CreateVertex(colony.Position);
-		vertices.Add(colonyVertex);
-		var foods = GetChildren().Where(x => x.Name.ToString().Contains("Food")).Select(x => x as Area2D);
-		foreach (var food in foods)
-		{
-			vertices.Add(_CreateVertex(food.Position));
-		}
-
-		vertices.ForEach(v =>
-		{
-			var adjacents = vertices.Where(u => v.Position.IntersectWith(u.Position, offset * 1.34f));
-
-			foreach (var adj in adjacents)
-			{
-				if (v != adj)
-				{
-					if (!Graph.Any(e => e.IsThisEdge(v, adj)))
-					{
-						var edge = new Edge(v, adj, Random.Shared.NextDouble());
-						Graph.Add(edge);
-					}
-				}
-			}
-		});
-
-		for (int i = 0; i < Ants; i++)
-			_CreateAntAgent(colonyVertex);
 	}
 
 	private void _CreateAntAgent(Vertex origin)
